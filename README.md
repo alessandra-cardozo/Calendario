@@ -1,77 +1,93 @@
+# README: Calendário Responsivo
 
- # Calendário Interativo com Feriados e Lembretes
+## 📋 Descrição
+Este é um projeto de **Calendário Responsivo** em HTML, CSS e JavaScript que permite visualizar meses, alternar para o modo escuro, gerenciar lembretes para dias específicos, destacar finais de semana e feriados, e salvar dados no `localStorage` para manter as informações mesmo após recarregar a página.
 
-Um projeto responsivo de calendário interativo que permite:
-- Destacar feriados nacionais brasileiros com descrição ao passar o mouse.
-- Adicionar lembretes clicando em datas específicas.
-- Navegar entre meses dinamicamente.
+---
 
-## ⚙️ Funcionalidades
+## 🔑 Funcionalidades
+1. **Modo escuro**: Permite alternar o tema da página clicando no ícone da lua 🌙.
+2. **Navegação entre meses**: Use os botões para mudar entre os meses anteriores e seguintes.
+3. **Finais de semana destacados**: Os dias de sábado e domingo são visualmente destacados.
+4. **Feriados**: Datas fixas de feriados são sinalizadas e exibem um tooltip ao passar o mouse.
+5. **Lembretes**: Adicione lembretes para dias específicos através de uma interface modal.
+6. **Persistência de dados**: Lembretes são salvos no `localStorage` e permanecem mesmo após o fechamento ou recarregamento da página.
 
-1. **Feriados Brasileiros**:
-   - Os feriados nacionais são destacados em amarelo.
-   - Passe o mouse sobre um feriado para ver o nome dele.
+---
 
-2. **Adicionar Lembretes**:
-   - Clique em qualquer data para abrir um modal.
-   - Insira um lembrete e salve-o.
-   - Os lembretes são exibidos dinamicamente após serem salvos.
+## 📂 Estrutura do Código
 
-3. **Design Responsivo**:
-   - Layout adaptado para dispositivos móveis e telas maiores.
-   - Animações suaves ao alternar entre os meses.
+### **HTML**
+- **Cabeçalho**: Elementos básicos de definição de idioma (`lang="pt-BR"`), charset e título do projeto.
+- **Divs**:
+  - `.calendario`: Estrutura principal do calendário.
+  - `.calendario-header`: Cabeçalho contendo botões de navegação e o botão de modo escuro.
+- **Modal**: `#lembreteModal` para entrada de lembretes, com suporte para salvar ou cancelar.
 
-## 🛠️ Tecnologias Utilizadas
+---
 
-- **HTML5**: Estrutura do calendário.
-- **CSS3**: Estilização e responsividade.
-- **JavaScript**: Lógica de interação, renderização dinâmica e manipulação de eventos.
+### **CSS**
+- **Variáveis de estilo**: Define cores, fontes e propriedades para modos claro e escuro.
+- **Design responsivo**: Ajusta layout para dispositivos menores com a regra `@media`.
+- **Classes específicas**:
+  - `.dark-mode`: Alteração de tema.
+  - `.fim-de-semana`, `.feriado`, `.dia-atual`: Estilização especial para certos dias.
 
-## 📋 Instalação e Execução
+---
 
-Siga estas etapas para rodar o projeto localmente:
+### **JavaScript**
+1. **Definição e inicialização de variáveis**:
+   - `dataAtual`: Define o mês e o ano inicial.
+   - `feriados`: Lista de feriados fixos com suporte para tooltips.
+   - `lembretes`: Armazena lembretes no `localStorage`.
 
-1. Clone este repositório ou copie os arquivos para seu computador.
-2. Certifique-se de que tem um navegador atualizado (ex.: Google Chrome, Microsoft Edge, Firefox).
-3. Abra o arquivo `index.html` em um navegador para visualizar o projeto.
+2. **Funções principais**:
+   - `renderCalendario`: Renderiza o calendário atual com todos os destaques (fim de semana, feriados, dia atual).
+   - `mudarMes(valor)`: Alterna entre meses.
+   - `abrirModal(data)`: Abre o modal para adicionar ou editar lembretes de um dia específico.
+   - `salvarLembrete`: Salva lembretes no `localStorage`.
+   - `fecharModal`: Fecha o modal.
+   - `alternarModoEscuro`: Alterna entre os temas claro e escuro.
 
-## 📆 Feriados Brasileiros
+3. **Eventos**:
+   - `DOMContentLoaded`: Garante que o calendário seja renderizado após o carregamento da página.
 
-Os seguintes feriados nacionais são destacados automaticamente:
+---
 
-| Data       | Nome do Feriado                     |
-|------------|-------------------------------------|
-| 01 de Janeiro | Confraternização Universal         |
-| 01 de Maio    | Dia do Trabalhador                |
-| 07 de Setembro| Independência do Brasil           |
-| 12 de Outubro | Nossa Senhora Aparecida           |
-| 25 de Dezembro| Natal                             |
+## 🛠️ Instalação
+1. Faça o download dos arquivos ou clone o repositório.
+2. Abra o arquivo `index.html` em um navegador compatível (Chrome, Edge, Firefox, etc.).
+3. Permita o uso do `localStorage` no navegador.
 
-## 🖼️ Exibição
+---
 
-- **Feriados**: Destacados em amarelo e exibem o nome ao passar o mouse.
-- **Dia Atual**: Destacado em laranja para facilitar a identificação.
-- **Modal de Lembretes**: Permite adicionar lembretes personalizados para qualquer data.
+## 🚀 Como Usar
+1. Abra o calendário.
+2. Navegue entre os meses usando os botões "<" e ">".
+3. Clique em um dia para abrir o modal de lembretes.
+4. Escreva um lembrete e clique em "Salvar".
+5. Ative o modo escuro clicando no botão da lua.
 
-## ✨ Como Usar
+---
 
-1. **Navegue pelo calendário**:
-   - Use as setas no cabeçalho para alternar entre os meses.
+## 🖥️ Tecnologias Utilizadas
+- **HTML5**: Para marcação semântica.
+- **CSS3**: Para estilização avançada e modo escuro.
+- **JavaScript**: Para lógica e interatividade dinâmica.
+- **LocalStorage**: Para persistência de dados.
 
-2. **Visualize feriados**:
-   - Passe o mouse sobre as datas destacadas para ver o nome do feriado.
+---
 
-3. **Adicione lembretes**:
-   - Clique em uma data para abrir o modal.
-   - Insira seu lembrete e clique em "Salvar".
+## 🔒 Requisitos
+- Navegador moderno com suporte a `localStorage` e compatível com JavaScript.
 
-## 🔧 Próximos Melhoramentos
+---
 
-- Implementar suporte a eventos recorrentes.
-- Persistir lembretes utilizando localStorage ou backend.
-- Adicionar feriados estaduais e municipais.
+## 📧 Suporte
+Se você tiver dúvidas ou problemas, sinta-se à vontade para entrar em contato.
 
-## 📝 Licença
+---
 
-Este projeto é de código aberto e você pode usá-lo e modificá-lo livremente.
+
+ 
 

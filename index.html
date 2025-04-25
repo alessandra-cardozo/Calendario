@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendário com Feriados e Lembretes</title>
+  <style>
+    /* Estilos base e responsivos */
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+
+    .calendario {
+      width: 100%;
+      max-width: 800px;
+      background: linear-gradient(135deg, #42a5f5, #1e88e5);
+      border-radius: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      color: white;
+    }
+
+    .calendario-header {
+      text-align: center;
+      padding: 30px;
+      font-size: 2em;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .calendario-header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 2em;
+      font-weight: bold;
+      margin: 0 20px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .calendario-header button:hover {
+      transform: scale(1.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    th {
+      font-size: 1.2em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    td {
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    td:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      color: #333;
+    }
+
+    .dia-atual {
+      background-color: #ff7043;
+      color: white;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+
+    .feriado {
+      background-color: #ffeb3b;
+      color: #333;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .feriado:hover::after {
+      content: attr(data-feriado);
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    #lembreteModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      z-index: 1000;
+    }
+
+    #lembreteModal input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #lembreteModal button {
+      padding: 10px 20px;
+      background: #42a5f5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #lembreteModal button:hover {
+      background: #1e88e5;
+    }
+
+    #modalBackdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendario">
+    <div class="calendario-header">
+      <button onclick="mudarMes(-1)">&#8592;</button>
+      <span id="mes-ano">Carregando...</span>
+      <button onclick="mudarMes(1)">&#8594;</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Dom</th>
+          <th>Seg</th>
+          <th>Ter</th>
+          <th>Qua</th>
+          <th>Qui</th>
+          <th>Sex</th>
+          <th>Sáb</th>
+        </tr>
+      </thead>
+      <tbody id="dias-calendario"></tbody>
+    </table>
+  </div>
+
+  <div id="modalBackdrop" onclick="fecharModal()"></div>
+  <div id="lembreteModal">
+    <h3>Adicionar Lembrete</h3>
+    <input type="text" id="lembreteInput" placeholder="Escreva seu lembrete">
+    <button onclick="salvarLembrete()">Salvar</button>
+    <button onclick="fecharModal()">Cancelar</button>
+  </div>
+
+  <script>
+    let dataAtual = new Date();
+    const feriados = {
+        '1-1': 'Ano Novo',
+        '25-12': 'Natal',
+        '7-9': 'Independência do Brasil',
+        '15-11': 'Proclamação da República',
+        '1-5': 'Dia do Trabalho',
+        '12-10': 'Nossa Senhora Aparecida',
+        '2-11': 'Finados',
+        '25-12': 'Natal'
+    };
+
+    let lembretes = {};
+
+    function getNomeMes(mes) {
+      const meses = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril',
+        'Maio', 'Junho', 'Julho', 'Agosto',
+        'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      ];
+      return meses[mes];
+    }
+
+    function renderCalendario() {
+      const mesAtual = dataAtual.getMonth();
+      const anoAtual = dataAtual.getFullYear();
+      const diaAtual = new Date().getDate();
+
+      const headerElement = document.getElementById('mes-ano');
+      headerElement.textContent = `${getNomeMes(mesAtual)} ${anoAtual}`;
+
+      const primeiroDiaDoMes = new Date(anoAtual, mesAtual, 1).getDay();
+      const ultimoDiaDoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
+
+      const tbody = document.getElementById('dias-calendario');
+      tbody.innerHTML = '';
+
+      let linha = document.createElement('tr');
+      let diaContador = 1;
+
+      for (let i = 0; i < primeiroDiaDoMes; i++) {
+        linha.appendChild(document.createElement('td'));
+      }
+
+      while (diaContador <= ultimoDiaDoMes) {
+        if (linha.children.length === 7) {
+          tbody.appendChild(linha);
+          linha = document.createElement('tr');
+        }
+
+        const coluna = document.createElement('td');
+        coluna.textContent = diaContador;
+        coluna.onclick = () => abrirModal(diaContador, mesAtual + 1, anoAtual);
+
+        const chaveFeriado = `${diaContador}-${mesAtual + 1}`;
+        if (feriados[chaveFeriado]) {
+          coluna.classList.add('feriado');
+          coluna.setAttribute('data-feriado', feriados[chaveFeriado]);
+        }
+
+        if (diaContador === diaAtual &&
+            mesAtual === new Date().getMonth() &&
+            anoAtual === new Date().getFullYear()) {
+          coluna.classList.add('dia-atual');
+        }
+
+        linha.appendChild(coluna);
+        diaContador++;
+      }
+
+      if (linha.children.length > 0) {
+        tbody.appendChild(linha);
+      }
+    }
+
+    function mudarMes(mudanca) {
+      dataAtual.setMonth(dataAtual.getMonth() + mudanca);
+      renderCalendario();
+    }
+
+    function abrirModal(dia, mes, ano) {
+      const data = `${dia}-${mes}-${ano}`;
+      document.getElementById('modalBackdrop').style.display = 'block';
+      document.getElementById('lembreteModal').style.display = 'block';
+      document.getElementById('lembreteInput').dataset.date = data;
+      document.getElementById('lembreteInput').value = lembretes[data] || '';
+    }
+
+    function salvarLembrete() {
+      const data = document.getElementById('lembreteInput').dataset.date; // Obtemos a data associada ao lembrete
+      const lembrete = document.getElementById('lembreteInput').value; // Obtemos o texto do lembrete
+      lembretes[data] = lembrete; // Salvamos o lembrete associado à data
+      fecharModal(); // Fechamos o modal
+      alert(`Lembrete para ${data} salvo com sucesso!`); // Mensagem de confirmação ao usuário
+    }
+
+    function fecharModal() {
+      document.getElementById('modalBackdrop').style.display = 'none'; // Esconde o fundo
+      document.getElementById('lembreteModal').style.display = 'none'; // Fecha o modal
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCalendario); // Renderiza o calendário ao carregar a página
+  </script>
+</body>
+</html>
